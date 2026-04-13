@@ -3,7 +3,7 @@ function Navbar({ user, onLogout }) {
     <header className="navbar">
       <div>
         <p className="navbar-brand">AlgoCoach</p>
-        <p className="navbar-subtitle">Smart coding interview preparation</p>
+        <p className="navbar-subtitle">Smart coding interview preparation with a connected coding workspace</p>
       </div>
 
       <div className="navbar-actions">
