@@ -42,13 +42,35 @@ export const getCurrentUser = () => {
   }
 };
 
+export const fetchCurrentUser = async () => {
+  const res = await pythonAPI.get('/auth/me');
+  const existingUser = getCurrentUser() || {};
+
+  localStorage.setItem(
+    'algocoach_user',
+    JSON.stringify({
+      ...existingUser,
+      ...res.data,
+      role: res.data.role || existingUser.role || 'Learner',
+    }),
+  );
+
+  return res.data;
+};
+
 function persistAuth(data) {
+  const user = data.user || {};
+
   localStorage.setItem('algocoach_token', data.access_token);
   localStorage.setItem(
     'algocoach_user',
     JSON.stringify({
-      name: data.user_name || data.name || 'User',
-      role: data.user_role || data.role || 'Learner',
+      id: user.id || null,
+      name: user.name || data.user_name || data.name || 'User',
+      email: user.email || data.email || '',
+      role: user.role || data.user_role || data.role || 'Learner',
+      college: user.college || data.college || '',
+      batch: user.batch || data.batch || '',
     }),
   );
 }
