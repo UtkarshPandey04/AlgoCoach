@@ -14,7 +14,7 @@ router = APIRouter(prefix="/submissions", tags=["submissions"])
 class SubmitRequest(BaseModel):
     problem_id: int
     code: str
-    language: str  # python / javascript / java / cpp
+    language: str  
 
 class SubmissionResult(BaseModel):
     submission_id: str
@@ -31,12 +31,12 @@ async def submit_code(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Problem fetch karo
+    
     problem = db.query(Problem).filter(Problem.id == data.problem_id).first()
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
-    # Test cases nikalo
+    
     test_cases_raw = problem.test_cases or {}
     test_cases = test_cases_raw.get("test_cases", [])
 
@@ -48,10 +48,14 @@ async def submit_code(
     last_stdout = ""
     last_stderr = ""
     last_runtime = None
+    had_execution_error = False
 
-    # Har test case ke liye code run karo
+    def normalize(s: str) -> str:
+        return s.strip().replace(" ", "").replace("\n", "")
+
     for tc in test_cases:
-        stdin_data = json.dumps(tc.get("input", ""))
+        input_value = tc.get("input", "")
+        stdin_data = input_value if isinstance(input_value, str) else json.dumps(input_value)
         expected = tc.get("expected")
 
         result = await run_code(data.code, data.language, stdin_data)
@@ -60,14 +64,16 @@ async def submit_code(
         last_stderr = result.get("stderr", "")
         last_runtime = result.get("time")
 
-        # Simple output check
+        if result.get("status") != "Accepted" and last_stderr:
+            had_execution_error = True
+
         actual_output = last_stdout.strip()
         expected_str = str(expected).strip()
 
-        if actual_output == expected_str:
+        if normalize(actual_output) == normalize(expected_str):
             passed += 1
 
-    # Status decide karo
+    
     if passed == total:
         final_status = "accepted"
     elif passed > 0:
@@ -75,10 +81,10 @@ async def submit_code(
     else:
         final_status = "wrong_answer"
 
-    if last_stderr and passed == 0:
+    if had_execution_error and passed == 0:
         final_status = "error"
 
-    # DB mein save karo
+    
     submission = Submission(
         user_id=current_user.id,
         problem_id=data.problem_id,

@@ -55,3 +55,13 @@ class Submission(Base):
     runtime_ms = Column(Integer)
     hints_used = Column(Integer, default=0)
     created_at = Column(DateTime, default=func.now())
+    
+    
+class HintLog(Base):
+    __tablename__ = "hint_logs"
+
+    id = Column(UUIDType, primary_key=True, default=uuid_default)
+    user_id = Column(UUIDType, nullable=False)
+    problem_id = Column(Integer, nullable=False)
+    hint_level = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=func.now())

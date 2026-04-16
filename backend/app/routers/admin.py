@@ -12,7 +12,6 @@ from app.dependencies import get_admin_user
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-# ── Schemas ──────────────────────────────────────────────
 
 class StudentStats(BaseModel):
     id: str
@@ -30,15 +29,17 @@ class BatchStats(BaseModel):
     avg_score: float
     total_submissions: int
 
-# ── Helper: score calculate karo ─────────────────────────
+
 
 def calculate_score(accepted: int, total: int) -> float:
     if total == 0:
         return 0.0
-    base = (accepted / total) * 100
-    return round(min(base, 100.0), 2)
 
-# ── Endpoints ─────────────────────────────────────────────
+    volume_bonus = min(accepted * 2, 30)  # max 30 points for volume
+    accuracy = (accepted / total) * 70     # max 70 points for accuracy
+    return round(min(volume_bonus + accuracy, 100.0), 2)
+
+
 
 @router.get("/students", response_model=List[StudentStats])
 def get_all_students(

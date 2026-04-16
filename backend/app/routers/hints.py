@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from app.database import get_db
-from app.models import Problem, User
+from app.models import Problem, User, HintLog
 from app.dependencies import get_current_user
 from app.utils.groq_service import get_hint
 
@@ -51,6 +51,14 @@ def request_hint(
         user_code=data.user_code or "",
         hint_level=data.hint_level
     )
+
+    log = HintLog(
+        user_id=current_user.id,
+        problem_id=data.problem_id,
+        hint_level=data.hint_level
+    )
+    db.add(log)
+    db.commit()
 
     return HintResponse(
         hint_level=data.hint_level,
