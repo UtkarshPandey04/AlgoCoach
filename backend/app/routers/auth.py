@@ -6,7 +6,7 @@ from jose import jwt
 from datetime import datetime, timedelta
 
 from app.database import get_db
-from app.models import User
+from app.models import User, Submission, Problem
 from app.config import SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRE_MINUTES
 from app.dependencies import get_current_user
 
@@ -110,3 +110,43 @@ class UserResponse(BaseModel):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+
+@router.get("/my-progress")
+def my_progress(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    submissions = db.query(Submission).filter(
+        Submission.user_id == current_user.id
+    ).all()
+
+    problem_ids = {s.problem_id for s in submissions}
+    problem_topic_by_id = {}
+    if problem_ids:
+        problem_rows = db.query(Problem.id, Problem.topic).filter(
+            Problem.id.in_(problem_ids)
+        ).all()
+        problem_topic_by_id = {pid: topic for pid, topic in problem_rows}
+
+    total = len(submissions)
+    accepted = len([s for s in submissions if s.status == "accepted"])
+    
+    # Topic-wise breakdown
+    topic_map = {}
+    for s in submissions:
+        topic = problem_topic_by_id.get(s.problem_id)
+        if topic:
+            if topic not in topic_map:
+                topic_map[topic] = {"total": 0, "accepted": 0}
+            topic_map[topic]["total"] += 1
+            if s.status == "accepted":
+                topic_map[topic]["accepted"] += 1
+
+    return {
+        "total_submissions": total,
+        "accepted": accepted,
+        "accuracy": round((accepted/total*100) if total > 0 else 0, 2),
+        "topic_breakdown": topic_map
+    }
