@@ -1,25 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;700;800&display=swap');
+
 :root {
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  color: #112033;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  color: #0f172a;
   background:
-    radial-gradient(circle at top left, rgba(255, 211, 128, 0.82), transparent 28%),
-    radial-gradient(circle at 85% 10%, rgba(89, 160, 255, 0.18), transparent 22%),
-    radial-gradient(circle at bottom right, rgba(126, 201, 161, 0.38), transparent 30%),
-    linear-gradient(135deg, #fff4df 0%, #f8fbff 52%, #eef8f2 100%);
+    radial-gradient(circle at 12% 18%, rgba(255, 122, 89, 0.24), transparent 22%),
+    radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.22), transparent 20%),
+    radial-gradient(circle at 78% 84%, rgba(251, 191, 36, 0.18), transparent 24%),
+    linear-gradient(145deg, #fff8ef 0%, #f7fbff 48%, #eefdf8 100%);
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --border-color: rgba(17, 32, 51, 0.1);
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --shadow: 0 20px 48px rgba(17, 32, 51, 0.12);
-  --brand: #0f766e;
-  --brand-deep: #0d534f;
-  --accent: #eb5e28;
-  --ink-soft: rgba(17, 32, 51, 0.72);
+  --border-color: rgba(15, 23, 42, 0.1);
+  --surface: rgba(255, 255, 255, 0.76);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  --brand: #0ea5a4;
+  --brand-deep: #0f766e;
+  --accent: #ff6b4a;
+  --accent-2: #fbbf24;
+  --ink-soft: rgba(15, 23, 42, 0.72);
   --danger: #b42318;
 }
 
@@ -37,18 +40,31 @@ body,
 body {
   min-height: 100vh;
   position: relative;
+  background: linear-gradient(145deg, #fff8ef 0%, #f7fbff 48%, #eefdf8 100%);
 }
 
 body::before {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(rgba(17, 32, 51, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(17, 32, 51, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
   background-size: 32px 32px;
-  mask-image: radial-gradient(circle at center, black, transparent 78%);
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
   pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 16%, rgba(255, 107, 74, 0.11), transparent 18%),
+    radial-gradient(circle at 90% 26%, rgba(14, 165, 164, 0.12), transparent 18%),
+    radial-gradient(circle at 52% 88%, rgba(251, 191, 36, 0.1), transparent 18%);
+  pointer-events: none;
+  animation: drift 16s ease-in-out infinite;
 }
 
 a {
@@ -95,7 +111,7 @@ button {
   right: -120px;
   width: 320px;
   height: 320px;
-  background: radial-gradient(circle, rgba(235, 94, 40, 0.14), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 107, 74, 0.14), transparent 70%);
 }
 
 .ambient-two {
@@ -103,7 +119,7 @@ button {
   left: -120px;
   width: 360px;
   height: 360px;
-  background: radial-gradient(circle, rgba(15, 118, 110, 0.14), transparent 68%);
+  background: radial-gradient(circle, rgba(14, 165, 164, 0.14), transparent 68%);
   animation-delay: -4s;
 }
 
@@ -118,7 +134,7 @@ button {
 .surface-card,
 .auth-card {
   border: 1px solid var(--border-color);
-  border-radius: 26px;
+  border-radius: 30px;
   background: var(--surface);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
@@ -145,6 +161,16 @@ button {
   color: var(--accent);
 }
 
+.navbar-brand {
+  display: inline-block;
+  font-size: 1.08rem;
+  letter-spacing: 0.18em;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--brand) 52%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .navbar-subtitle,
 .auth-text,
 .hero-text,
@@ -169,9 +195,14 @@ button {
 .user-chip,
 .pill {
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.09);
+  background: rgba(14, 165, 164, 0.1);
   color: var(--brand-deep);
   padding: 10px 14px;
+}
+
+.pill--accent {
+  background: rgba(255, 107, 74, 0.12);
+  color: #c2412d;
 }
 
 .user-name,
@@ -191,21 +222,21 @@ button {
 .secondary-button,
 .primary-button {
   border: 0;
-  border-radius: 14px;
+  border-radius: 999px;
   padding: 12px 18px;
   font-weight: 700;
   transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
 .secondary-button {
-  background: #112033;
+  background: #111827;
   color: #fff;
 }
 
 .primary-button {
-  background: linear-gradient(135deg, var(--brand) 0%, #14b8a6 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--brand) 55%, var(--accent-2) 100%);
   color: #fff;
-  box-shadow: 0 14px 26px rgba(15, 118, 110, 0.24);
+  box-shadow: 0 16px 28px rgba(14, 165, 164, 0.26);
 }
 
 .secondary-button:hover,
@@ -234,18 +265,32 @@ button {
   padding: 34px;
   position: relative;
   overflow: hidden;
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62)),
+    linear-gradient(120deg, rgba(255, 107, 74, 0.08), rgba(14, 165, 164, 0.06));
 }
 
 .dashboard-hero::after {
-  content: "";
+  content: '';
   position: absolute;
   top: -48px;
   right: 7%;
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(235, 94, 40, 0.18), transparent 72%);
+  background: radial-gradient(circle, rgba(255, 107, 74, 0.18), transparent 72%);
   animation: float 7s ease-in-out infinite;
+}
+
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  inset: auto auto -90px -70px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 164, 0.16), transparent 68%);
+  animation: float 8s ease-in-out infinite reverse;
 }
 
 .dashboard-hero__content,
@@ -264,9 +309,10 @@ button {
 .dashboard-hero__panel {
   padding: 24px;
   border-radius: 24px;
-  background: linear-gradient(155deg, rgba(17, 32, 51, 0.95), rgba(15, 118, 110, 0.9));
+  background: linear-gradient(155deg, rgba(15, 23, 42, 0.96), rgba(14, 165, 164, 0.9));
   color: #fff;
   box-shadow: 0 24px 40px rgba(17, 32, 51, 0.22);
+  animation: rise-in 0.8s ease both;
 }
 
 .dashboard-hero__label {
@@ -288,6 +334,7 @@ button {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
 }
 
 .hero-orbit__card span {
@@ -318,6 +365,18 @@ button {
 
 .stat-card {
   padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: auto -16px -24px auto;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 74, 0.14), transparent 70%);
 }
 
 .stat-card__label {
@@ -356,6 +415,33 @@ button {
   padding: 24px;
 }
 
+.practice-problems,
+.practice-editor {
+  position: relative;
+  overflow: hidden;
+}
+
+.practice-problems::before,
+.practice-editor::before {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 164, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.practice-problems::before {
+  top: -90px;
+  right: -80px;
+}
+
+.practice-editor::before {
+  bottom: -110px;
+  left: -80px;
+}
+
 .section-heading,
 .editor-footer,
 .timeline-card,
@@ -389,8 +475,8 @@ button {
   width: 100%;
   text-align: left;
   border-radius: 18px;
-  border: 1px solid rgba(17, 32, 51, 0.08);
-  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.68);
   padding: 16px 18px;
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -398,13 +484,13 @@ button {
 .problem-card:hover,
 .roadmap-step:hover {
   transform: translateY(-2px);
-  border-color: rgba(15, 118, 110, 0.26);
-  box-shadow: 0 14px 28px rgba(17, 32, 51, 0.08);
+  border-color: rgba(14, 165, 164, 0.26);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
 }
 
 .problem-card.is-active {
-  background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(255, 255, 255, 0.86));
-  border-color: rgba(15, 118, 110, 0.34);
+  background: linear-gradient(135deg, rgba(14, 165, 164, 0.12), rgba(255, 255, 255, 0.9));
+  border-color: rgba(14, 165, 164, 0.34);
 }
 
 .problem-card__meta {
@@ -450,16 +536,51 @@ button {
 .editor-shell {
   margin-top: 18px;
   overflow: hidden;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.language-switcher {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.language-chip {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.language-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 18px rgba(15, 23, 42, 0.08);
+}
+
+.language-chip.is-active {
+  background: linear-gradient(135deg, rgba(255, 107, 74, 0.16), rgba(14, 165, 164, 0.18));
+  border-color: rgba(14, 165, 164, 0.32);
+  color: var(--brand-deep);
+}
+
+.editor-dock {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .editor-footer {
   margin-top: 18px;
   padding: 18px;
   border-radius: 18px;
-  background: rgba(17, 32, 51, 0.04);
+  background: linear-gradient(135deg, rgba(14, 165, 164, 0.08), rgba(255, 107, 74, 0.06));
 }
 
 .editor-footer strong {
@@ -484,15 +605,15 @@ button {
   min-width: 88px;
   padding: 9px 12px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.1);
+  background: rgba(14, 165, 164, 0.1);
   color: var(--brand-deep);
   font-size: 0.82rem;
   font-weight: 800;
 }
 
 .activity-item__status {
-  background: rgba(235, 94, 40, 0.12);
-  color: #a54823;
+  background: rgba(255, 107, 74, 0.12);
+  color: #b7412a;
 }
 
 .timeline-card h3,
@@ -525,6 +646,25 @@ button {
 .auth-card {
   width: min(540px, 100%);
   padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  inset: -70px auto auto -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14, 165, 164, 0.14), transparent 70%);
+}
+
+.auth-copy,
+.auth-form,
+.auth-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .auth-form {
@@ -543,15 +683,15 @@ button {
 .field select {
   width: 100%;
   padding: 13px 14px;
-  border: 1px solid rgba(17, 32, 51, 0.14);
-  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 16px;
   background: var(--surface-strong);
 }
 
 .field input:focus,
 .field select:focus {
-  outline: 2px solid rgba(15, 118, 110, 0.22);
-  border-color: rgba(15, 118, 110, 0.4);
+  outline: 2px solid rgba(14, 165, 164, 0.24);
+  border-color: rgba(14, 165, 164, 0.42);
 }
 
 .form-error {
@@ -562,7 +702,7 @@ button {
 
 .auth-footer {
   margin: 20px 0 0;
-  color: rgba(17, 32, 51, 0.82);
+  color: rgba(15, 23, 42, 0.82);
 }
 
 @keyframes rise-in {
@@ -585,6 +725,17 @@ button {
 
   50% {
     transform: translateY(18px);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0);
   }
 }
 
@@ -622,5 +773,9 @@ button {
   .roadmap-step__phase,
   .activity-item__status {
     min-width: 0;
+  }
+
+  .editor-dock {
+    justify-content: flex-start;
   }
 }
