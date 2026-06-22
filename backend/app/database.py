@@ -1,4 +1,5 @@
 import logging
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -7,6 +8,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from app.config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
+USING_SQLITE_FALLBACK = False
 
 
 def _create_engine(url: str):
@@ -29,7 +31,8 @@ if not DATABASE_URL.startswith("sqlite"):
         with engine.connect():
             pass
     except OperationalError:
-        fallback_url = "sqlite:///./algocoach.db"
+        USING_SQLITE_FALLBACK = True
+        fallback_url = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'algocoach.db')}"
         logger.warning(
             "Primary database connection failed; falling back to local SQLite at %s",
             fallback_url,

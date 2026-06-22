@@ -53,11 +53,12 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_token(user_id: str, role: str) -> str:
+def create_token(user_id: str, role: str, email: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
     payload = {
         "sub": str(user_id),
         "role": role,
+        "email": email,
         "exp": expire,
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=JWT_ALGORITHM)
@@ -65,7 +66,7 @@ def create_token(user_id: str, role: str) -> str:
 
 def build_token_response(user: User) -> TokenResponse:
     return TokenResponse(
-        access_token=create_token(user.id, user.role),
+        access_token=create_token(user.id, user.role, user.email),
         user_name=user.name,
         user_role=user.role,
         user=UserResponse(

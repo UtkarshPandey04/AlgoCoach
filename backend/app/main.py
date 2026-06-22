@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import APP_NAME, FRONTEND_ORIGINS
 from app.database import Base, engine
-from app.routers import auth, dashboard, platform
+from app.routers import auth, dashboard, platform, problems, submissions
 
 
 @asynccontextmanager
@@ -21,6 +21,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Ensure required tables exist in the active database (Supabase or SQLite fallback).
+Base.metadata.create_all(bind=engine)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
@@ -32,6 +35,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(platform.router)
+app.include_router(problems.router)
+app.include_router(submissions.router)
 
 
 @app.get("/")
