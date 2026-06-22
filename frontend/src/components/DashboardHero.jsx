@@ -9,7 +9,7 @@ function DashboardHero({ user, overview }) {
             'Keep the grind in one place with live coding, quick review loops, and a workspace that feels built for momentum.'}
         </p>
         <div className="hero-badges">
-          <span className="pill">Role: {user?.role || 'Learner'}</span>
+          <span className="pill">Role: {user?.role || 'Student'}</span>
           <span className="pill">{user?.college || 'Interview prep mode'}</span>
           <span className="pill pill--accent">{user?.batch ? `Batch ${user.batch}` : 'Daily momentum'}</span>
         </div>

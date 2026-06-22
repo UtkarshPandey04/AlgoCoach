@@ -1,31 +1,23 @@
-from sqlalchemy import Column, String, DateTime, Integer, Text, JSON
-from sqlalchemy.sql import func
 import uuid
-from app.database import Base, USING_SQLITE_FALLBACK
 
-# UUID handling — PostgreSQL vs SQLite
-if USING_SQLITE_FALLBACK:
-    from sqlalchemy import String as UUIDType
-    def uuid_default():
-        return str(uuid.uuid4())
-else:
-    from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSONB
-    UUIDType = UUID(as_uuid=True)
-    def uuid_default():
-        return uuid.uuid4()
+from sqlalchemy import JSON, Column, DateTime, Integer, String, Text
+from sqlalchemy.sql import func
+
+from app.database import Base
+
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(UUIDType if USING_SQLITE_FALLBACK else UUID(as_uuid=True), 
-                primary_key=True, default=uuid_default)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), nullable=False)
-    email = Column(String(255), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    role = Column(String(20), default="student")
-    college = Column(String(100))
-    batch = Column(String(50))
-    created_at = Column(DateTime, default=func.now())
+    role = Column(String(20), default="student", nullable=False)
+    college = Column(String(100), nullable=True)
+    batch = Column(String(50), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
 
 class Problem(Base):
     __tablename__ = "problems"
@@ -40,18 +32,18 @@ class Problem(Base):
     examples = Column(JSON)
     constraints = Column(Text)
     test_cases = Column(JSON)
-    created_at = Column(DateTime, default=func.now())
-    
-    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
 class Submission(Base):
     __tablename__ = "submissions"
 
-    id = Column(UUIDType, primary_key=True, default=uuid_default)
-    user_id = Column(UUIDType, nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), nullable=False)
     problem_id = Column(Integer, nullable=False)
     code = Column(Text, nullable=False)
     language = Column(String(30))
     status = Column(String(20))  # accepted / wrong_answer / error
     runtime_ms = Column(Integer)
     hints_used = Column(Integer, default=0)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

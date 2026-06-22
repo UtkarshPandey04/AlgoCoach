@@ -51,7 +51,7 @@ export const fetchCurrentUser = async () => {
     JSON.stringify({
       ...existingUser,
       ...res.data,
-      role: res.data.role || existingUser.role || 'Learner',
+      role: res.data.role || existingUser.role || 'student',
     }),
   );
 
@@ -68,7 +68,7 @@ function persistAuth(data) {
       id: user.id || null,
       name: user.name || data.user_name || data.name || 'User',
       email: user.email || data.email || '',
-      role: user.role || data.user_role || data.role || 'Learner',
+      role: user.role || data.user_role || data.role || 'student',
       college: user.college || data.college || '',
       batch: user.batch || data.batch || '',
     }),
