@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { fetchDashboardOverview } from '../services/dashboardService';
 import { fetchCurrentUser, getCurrentUser, logoutUser } from '../services/authService';
 import {
@@ -275,11 +276,37 @@ const editorOptions = {
   automaticLayout: true,
 };
 
-const fallbackMockSession = {
-  durationSeconds: 45 * 60,
-  questionCount: 5,
-  currentQuestion: {
+const mockQuestions = [
+  {
     id: 'mock-01',
+    title: 'Two Sum',
+    difficulty: 'Easy',
+    prompt: 'Given an array of integers nums and an integer target, return the indices of the two numbers that add up to target.',
+    exampleInput: 'nums = [2,7,11,15], target = 9',
+    exampleOutput: '[0,1]',
+    starterCode: {
+      python:
+        'def twoSum(nums, target):\n    # Your code here\n    pass\n',
+      javascript:
+        'function twoSum(nums, target) {\n  // Your code here\n}\n',
+    },
+  },
+  {
+    id: 'mock-02',
+    title: 'Reverse String',
+    difficulty: 'Easy',
+    prompt: 'Write a function that reverses a string. The input string is given as an array of characters s.',
+    exampleInput: 's = ["h","e","l","l","o"]',
+    exampleOutput: '["o","l","l","e","h"]',
+    starterCode: {
+      python:
+        'def reverseString(s):\n    # Your code here\n    pass\n',
+      javascript:
+        'function reverseString(s) {\n  // Your code here\n}\n',
+    },
+  },
+  {
+    id: 'mock-03',
     title: 'Valid Parentheses',
     difficulty: 'Easy',
     prompt:
@@ -293,6 +320,40 @@ const fallbackMockSession = {
         'function isValid(s) {\n  const stack = [];\n  const pairs = { \")\": "(", "}": "{", "]": "[" };\n  for (const ch of s) {\n    if (pairs[ch]) {\n      if (!stack.length || stack[stack.length - 1] !== pairs[ch]) return false;\n      stack.pop();\n    } else {\n      stack.push(ch);\n    }\n  }\n  return stack.length === 0;\n}\n',
     },
   },
+  {
+    id: 'mock-04',
+    title: 'Merge Two Sorted Lists',
+    difficulty: 'Medium',
+    prompt: 'Merge two sorted linked lists and return it as a new sorted list.',
+    exampleInput: 'list1 = [1,2,4], list2 = [1,3,4]',
+    exampleOutput: '[1,1,2,3,4,4]',
+    starterCode: {
+      python:
+        'def mergeTwoLists(list1, list2):\n    # Your code here\n    pass\n',
+      javascript:
+        'function mergeTwoLists(list1, list2) {\n  // Your code here\n}\n',
+    },
+  },
+  {
+    id: 'mock-05',
+    title: 'Binary Tree Traversal',
+    difficulty: 'Medium',
+    prompt: 'Given the root of a binary tree, return the level order traversal of its nodes values.',
+    exampleInput: 'root = [3,9,20,null,null,15,7]',
+    exampleOutput: '[[3],[9,20],[15,7]]',
+    starterCode: {
+      python:
+        'def levelOrder(root):\n    # Your code here\n    pass\n',
+      javascript:
+        'function levelOrder(root) {\n  // Your code here\n}\n',
+    },
+  },
+];
+
+const fallbackMockSession = {
+  durationSeconds: 45 * 60,
+  questionCount: 5,
+  currentQuestion: mockQuestions[2],
 };
 
 function getInitials(name = '') {
@@ -359,6 +420,13 @@ function Home() {
   const [mockSeconds, setMockSeconds] = useState(38 * 60 + 42);
   const [mockRunning, setMockRunning] = useState(true);
   const [mockSession, setMockSession] = useState(fallbackMockSession);
+  const [mockCurrentQuestion, setMockCurrentQuestion] = useState(2);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [editProfileForm, setEditProfileForm] = useState({
+    name: profileData?.user?.name || '',
+    college: profileData?.user?.college || '',
+    batch: profileData?.user?.batch || '',
+  });
 
   const displayName = user?.name || 'Guest';
   const isAdmin = (user?.role || '').toLowerCase() === 'admin';
@@ -587,8 +655,11 @@ function Home() {
       });
 
       setHint(response?.hint || 'Think about using a hash map to avoid nested loops.');
+      toast.info('Hint generated!', { autoClose: 2000 });
     } catch {
-      setHint('Try reducing the problem into a single pass and keep edge cases first.');
+      const defaultHint = 'Try reducing the problem into a single pass and keep edge cases first.';
+      setHint(defaultHint);
+      toast.info('Using default hint', { autoClose: 2000 });
     } finally {
       setHintLoading(false);
     }
@@ -606,12 +677,19 @@ function Home() {
       });
 
       setRunResult(response);
+      
+      if (submit) {
+        toast.success('Code submitted successfully!', { autoClose: 2000 });
+      } else {
+        toast.success('Code executed!', { autoClose: 2000 });
+      }
     } catch {
       setRunResult({
         status: 'Wrong Answer',
         runtime: 'N/A',
         testCases: ['Execution failed', 'Please try again'],
       });
+      toast.error('Code execution failed', { autoClose: 2000 });
     } finally {
       setIsRunning(false);
     }
@@ -623,6 +701,56 @@ function Home() {
     return `${minutes}:${remainder}`;
   };
 
+  const handleLogout = () => {
+    logoutUser();
+    toast.info('Logged out successfully', { autoClose: 2000 });
+    navigate('/login', { replace: true });
+  };
+
+  const handlePrevMockQuestion = () => {
+    setMockCurrentQuestion((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextMockQuestion = () => {
+    const totalQuestions = mockSession?.questionCount || fallbackMockSession.questionCount;
+    setMockCurrentQuestion((prev) => Math.min(totalQuestions - 1, prev + 1));
+  };
+
+  const handleEditProfile = () => {
+    setShowEditProfile(true);
+    setEditProfileForm({
+      name: profileUser.name || '',
+      college: profileUser.college || '',
+      batch: profileUser.batch || '',
+    });
+  };
+
+  const handleSaveProfile = () => {
+    setProfileData((prev) => ({
+      ...prev,
+      user: {
+        ...prev.user,
+        name: editProfileForm.name,
+        college: editProfileForm.college,
+        batch: editProfileForm.batch,
+      },
+    }));
+    setUser((prev) => ({
+      ...prev,
+      name: editProfileForm.name,
+      college: editProfileForm.college,
+      batch: editProfileForm.batch,
+    }));
+    setShowEditProfile(false);
+    toast.success('Profile updated successfully!', { autoClose: 2000 });
+  };
+
+  const handleFinishMock = () => {
+    setMockSeconds(0);
+    setMockRunning(false);
+    toast.success('Mock Interview Complete! Your submission has been recorded.', { autoClose: 3000 });
+  };
+
   const selectedTopicCount = profileData?.stats?.topicProgress || fallbackProfile.stats.topicProgress;
   const difficultyBreakdown = profileData?.stats?.difficultyBreakdown || fallbackProfile.stats.difficultyBreakdown;
   const leaderboardSlice = leaderboardData.slice(0, 3);
@@ -630,7 +758,7 @@ function Home() {
   const overviewStats = dashboardOverview.stats || fallbackOverview.stats;
   const overviewRecentActivity = dashboardOverview.recent_activity || fallbackOverview.recent_activity;
   const profileUser = profileData?.user || fallbackProfile.user;
-  const mockQuestion = mockSession?.currentQuestion || fallbackMockSession.currentQuestion;
+  const mockQuestion = mockQuestions[mockCurrentQuestion] || mockQuestions[2];
   const mockEditorCode = mockQuestion.starterCode?.python || fallbackMockSession.currentQuestion.starterCode.python;
   const dashboardStats = useMemo(() => {
     const colors = ['var(--purple2)', 'var(--orange)', 'var(--pink)', 'var(--green)'];
@@ -796,10 +924,25 @@ function Home() {
           <div className="sidebar-bottom">
             <div className="user-card">
               <div className="avatar">{initials}</div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <div className="user-name">{displayName}</div>
                 <div className="user-role">{user?.role || 'student'}</div>
               </div>
+              <button 
+                type="button" 
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--text3)', 
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: '4px',
+                }}
+                onClick={handleLogout}
+                title="Logout"
+              >
+                🚪
+              </button>
             </div>
           </div>
         </aside>
@@ -1038,11 +1181,15 @@ function Home() {
                 <div className="card">
                   <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '8px' }}>Question Progress</div>
                   <div className="q-nav">
-                    <div className="q-num done">1</div>
-                    <div className="q-num done">2</div>
-                    <div className="q-num current">3</div>
-                    {Array.from({ length: Math.max(0, (mockSession?.questionCount || 5) - 3) }).map((_, index) => (
-                      <div key={index} className="q-num">{index + 4}</div>
+                    {Array.from({ length: mockSession?.questionCount || 5 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className={`q-num ${index < mockCurrentQuestion ? 'done' : index === mockCurrentQuestion ? 'current' : ''}`}
+                        onClick={() => setMockCurrentQuestion(index)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {index + 1}
+                      </div>
                     ))}
                   </div>
                   <div style={{ marginTop: '12px' }}>
@@ -1052,15 +1199,15 @@ function Home() {
                     <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.round((2 / (mockSession?.questionCount || 5)) * 100)}%`, background: 'var(--green)' }} /></div>
                   </div>
                   <div style={{ marginTop: '14px', display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>← Prev</button>
-                    <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }}>Next →</button>
+                    <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }} onClick={handlePrevMockQuestion} disabled={mockCurrentQuestion === 0}>← Prev</button>
+                    <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center', fontSize: '13px' }} onClick={handleNextMockQuestion} disabled={mockCurrentQuestion >= (mockSession?.questionCount || 5) - 1}>Next →</button>
                   </div>
                 </div>
               </div>
               <div className="split">
                 <div className="card">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                    <div style={{ fontSize: '15px', fontWeight: 700 }}>Q3 · {mockQuestion.title}</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700 }}>Q{mockCurrentQuestion + 1} · {mockQuestion.title}</div>
                     <span className={`badge ${difficultyClass(mockQuestion.difficulty)}`}>{mockQuestion.difficulty}</span>
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text2)', lineHeight: 1.7 }}>{mockQuestion.prompt}</div>
@@ -1081,7 +1228,7 @@ function Home() {
                     <button className="btn btn-green" style={{ padding: '7px 14px', fontSize: '12px' }}>▶ Run</button>
                   </div>
                   <div className="code-area">{mockEditorCode}</div>
-                  <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '12px' }}>🏁 Submit All &amp; Finish</button>
+                  <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '12px' }} onClick={handleFinishMock}>🏁 Submit All &amp; Finish</button>
                 </div>
               </div>
             </div>
@@ -1147,7 +1294,7 @@ function Home() {
                       <span style={{ fontSize: '12px', background: 'rgba(251,146,60,0.12)', color: 'var(--orange)', border: '1px solid rgba(251,146,60,0.2)', padding: '3px 10px', borderRadius: '20px' }}>🔥 {profileData.stats?.streak || 7} day streak</span>
                     </div>
                   </div>
-                  <button className="btn btn-ghost" style={{ fontSize: '13px' }}>Edit Profile</button>
+                  <button className="btn btn-ghost" style={{ fontSize: '13px' }} onClick={handleEditProfile}>Edit Profile</button>
                 </div>
               </div>
               <div className="stats-grid" style={{ marginBottom: '20px' }}>
@@ -1285,6 +1432,52 @@ function Home() {
                 </>
               )}
             </div>
+
+            {showEditProfile && (
+              <div style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 200,
+              }}>
+                <div className="card" style={{ width: 'min(400px, 90%)', maxHeight: '90vh', overflowY: 'auto' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>Edit Profile</div>
+                  <div style={{ display: 'grid', gap: '14px', marginBottom: '20px' }}>
+                    <label className="field">
+                      <span>Full Name</span>
+                      <input
+                        value={editProfileForm.name}
+                        onChange={(e) => setEditProfileForm({ ...editProfileForm, name: e.target.value })}
+                        placeholder="Your full name"
+                      />
+                    </label>
+                    <label className="field">
+                      <span>College</span>
+                      <input
+                        value={editProfileForm.college}
+                        onChange={(e) => setEditProfileForm({ ...editProfileForm, college: e.target.value })}
+                        placeholder="Your college name"
+                      />
+                    </label>
+                    <label className="field">
+                      <span>Batch</span>
+                      <input
+                        value={editProfileForm.batch}
+                        onChange={(e) => setEditProfileForm({ ...editProfileForm, batch: e.target.value })}
+                        placeholder="e.g. 2026"
+                      />
+                    </label>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleSaveProfile}>Save</button>
+                    <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowEditProfile(false)}>Cancel</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>

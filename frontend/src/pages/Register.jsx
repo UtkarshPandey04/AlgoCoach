@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { registerUser } from '../services/authService';
 
 function Register() {
@@ -25,11 +26,12 @@ function Register() {
 
     try {
       await registerUser(form.name, form.email, form.password, form.college, form.batch);
-      navigate('/', { replace: true });
+      toast.success('Registration successful! Logging you in...', { autoClose: 2000 });
+      setTimeout(() => navigate('/', { replace: true }), 500);
     } catch (err) {
-      setError(
-        err.response?.data?.detail || err.response?.data?.message || 'Registration failed. Please try again.',
-      );
+      const errorMsg = err.response?.data?.detail || err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

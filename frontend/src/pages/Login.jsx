@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { loginUser } from '../services/authService';
 
 function Login() {
@@ -19,9 +20,12 @@ function Login() {
 
     try {
       await loginUser(form.email, form.password);
-      navigate('/', { replace: true });
+      toast.success('Login successful! Redirecting...', { autoClose: 2000 });
+      setTimeout(() => navigate('/', { replace: true }), 500);
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.message || 'Login failed. Please try again.');
+      const errorMsg = err.response?.data?.detail || err.response?.data?.message || 'Login failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
